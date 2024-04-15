@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id          String        @id @default(uuid())
+  title       String
+  image       String
+  gender      String
+  description String
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @default(now())
+  content     MovieContent?
+  rating      Rating[]
+
+  @@unique([id]) // Garante que cada Movie tenha apenas um MovieContent
+}
+
+model MovieContent {
+  id    String @id @default(uuid())
+  URL   String
+  movie Movie  @relation(fields: [movieId], references: [id])
+
+  movieId String @unique
+
+  @@index([movieId]) // Garante que cada MovieContent esteja associado a apenas um Movie
+}
+
+model Rating {
+  id         String   @id @default(uuid())
+  userId     String
+  movieId    String
+  rating     Int // O rating dado pelo usuário (0 a 100)
+  created_at DateTime @default(now())
+
+  movie Movie @relation(fields: [movieId], references: [id])
+  user  User? @relation(fields: [userId], references: [id])
+
+  @@unique([userId, movieId])
+}
+
+model User {
+  id                   String        @id @default(uuid())
+  avatar               String?
+  name                 String
+  email                String        @unique
+  password             String
+  isAdmin              Boolean
+  created_at           DateTime      @default(now())
+  updated_at           DateTime      @default(now())
+  selectedSubscription Subscription? @relation(fields: [subscriptionId], references: [id]) // Campo para armazenar a assinatura selecionada pelo usuário
+  Rating               Rating[]
+  subscriptionId       String?
+}
+
+// Definindo a enumeração para os tipos de assinatura
+enum SubscriptionType {
+  BASIC
+  PREMIUM
+}
+
+// Definindo o modelo de dados para as assinaturas
+model Subscription {
+  id       String           @id @default(uuid())
+  type     SubscriptionType
+  name     String
+  price    Float
+  benefits String[]
+
+  User User[]
+}
