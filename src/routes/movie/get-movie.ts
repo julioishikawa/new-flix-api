@@ -1,18 +1,20 @@
+import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-import { FastifyInstance } from "fastify";
 import { getMovieRating } from "../../utils/get-movie-rating";
 import { ensureSubscriber } from "../../middlewares/ensureSubscriber";
 
-export async function getMovie(app: FastifyInstance) {
-  app.get(
-    "/movielist/:movieId",
-    { preHandler: ensureSubscriber },
-    async (req, reply) => {
-      const getMovieParams = z.object({
-        movieId: z.string().uuid(),
-      });
+const app = Router();
 
+app.get(
+  "/movielist/:movieId",
+  ensureSubscriber,
+  async (req: Request, res: Response) => {
+    const getMovieParams = z.object({
+      movieId: z.string().uuid(),
+    });
+
+    try {
       const { movieId } = getMovieParams.parse(req.params);
 
       const movie = await prisma.movie.findUnique({
@@ -30,11 +32,11 @@ export async function getMovie(app: FastifyInstance) {
       });
 
       if (!movie) {
-        return reply.status(400).send({ message: "Filme não encontrado" });
+        return res.status(400).send({ message: "Filme não encontrado" });
       }
 
       if (!movie.content) {
-        return reply.status(404).send({ message: "Conteúdo não encontrado" });
+        return res.status(404).send({ message: "Conteúdo não encontrado" });
       }
 
       const content = movie.content;
@@ -42,7 +44,7 @@ export async function getMovie(app: FastifyInstance) {
       // Calcula a porcentagem de rating do filme
       const ratingPercentage = await getMovieRating(movieId);
 
-      return reply.send({
+      return res.send({
         movie: {
           id: movie.id,
           title: movie.title,
@@ -55,6 +57,11 @@ export async function getMovie(app: FastifyInstance) {
           ratingPercentage: `${ratingPercentage}%`, // Inclui a porcentagem de rating na resposta
         },
       });
+    } catch (error: any) {
+      console.error("Erro ao buscar filme:", error.message);
+      return res.status(500).send({ message: "Erro ao buscar filme" });
     }
-  );
-}
+  }
+);
+
+export default app;

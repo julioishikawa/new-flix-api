@@ -1,7 +1,9 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { prisma } from "../lib/prisma";
-import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
-import { redis } from "../lib/redis";
+import { Request, Response, Router } from "express";
+import { prisma } from "../../lib/prisma";
+import { ensureAuthenticated } from "../../middlewares/ensureAuthenticated";
+import { redis } from "../../lib/redis";
+
+const app = Router();
 
 // Definição da enumeração SubscriptionType
 enum SubscriptionType {
@@ -20,19 +22,19 @@ function formatTimeRemaining(seconds: number): string {
   return formattedTime;
 }
 
-export async function selectSubscription(app: FastifyInstance) {
+export async function selectSubscription() {
   app.post(
     "/select-subscription/:type",
-    { preHandler: ensureAuthenticated },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { userId } = request.body as { userId: string };
-      const { type } = request.params as { type: SubscriptionType };
+    ensureAuthenticated,
+    async (req: Request, res: Response) => {
+      const { userId } = req.body as { userId: string };
+      const { type } = req.params as { type: SubscriptionType };
 
       // Verificar se o tipo de assinatura é válido
       try {
         // Verificar se o usuário está autenticado
-        if (!request.user) {
-          return reply.status(401).send({ error: "Usuário não autenticado" });
+        if (!req.user) {
+          return res.status(401).send({ error: "Usuário não autenticado" });
         }
 
         // Encontrar a assinatura pelo tipo
@@ -42,11 +44,7 @@ export async function selectSubscription(app: FastifyInstance) {
 
         // Verificar se a assinatura existe
         if (!subscription) {
-          return reply.status(404).send({ error: "Assinatura não encontrada" });
-        }
-
-        if (!subscription) {
-          return reply.status(404).send({ error: "Assinatura não encontrada" });
+          return res.status(404).send({ error: "Assinatura não encontrada" });
         }
 
         // Verificar se o usuário já possui uma assinatura ativa
@@ -56,7 +54,7 @@ export async function selectSubscription(app: FastifyInstance) {
         // Se o tempo restante for maior que zero, significa que o usuário já possui uma assinatura ativa
         if (timeRemaining > 0) {
           const formattedTimeRemaining = formatTimeRemaining(timeRemaining);
-          return reply.status(400).send({
+          return res.status(400).send({
             error: `Você já possui uma assinatura ativa. Tempo restante: ${formattedTimeRemaining}`,
           });
         }
@@ -76,14 +74,16 @@ export async function selectSubscription(app: FastifyInstance) {
         );
 
         // Retornar o ID do usuário e o ID da assinatura
-        return reply.status(200).send({
+        return res.status(200).send({
           userId: userId,
           subscriptionId: subscription.id,
         });
       } catch (error) {
         console.error("Erro ao selecionar a assinatura:", error);
-        return reply.status(500).send({ error: "Erro interno do servidor" });
+        return res.status(500).send({ error: "Erro interno do servidor" });
       }
     }
   );
+
+  return app;
 }

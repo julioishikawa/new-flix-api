@@ -1,17 +1,19 @@
-import { FastifyInstance, FastifyRequest } from "fastify";
+import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import bcrypt from "bcrypt";
 import ms from "ms";
 import { generateAuthToken, jwtConfig } from "../../configs/auth";
 
+const app = Router();
+
 interface LoginRequest {
   email: string;
   password: string;
 }
 
-export async function loginUser(app: FastifyInstance) {
-  app.post("/login", async (req: FastifyRequest, reply) => {
+export async function loginUser() {
+  app.post("/login", async (req: Request, res: Response) => {
     const loginBody = z.object({
       email: z.string(),
       password: z.string(),
@@ -23,13 +25,13 @@ export async function loginUser(app: FastifyInstance) {
       // Verificar se o usuário existe no banco de dados
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user) {
-        return reply.status(401).send({ error: "Credenciais inválidas" });
+        return res.status(401).send({ error: "Credenciais inválidas" });
       }
 
       // Verificar se a senha está correta
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
-        return reply.status(401).send({ error: "Credenciais inválidas" });
+        return res.status(401).send({ error: "Credenciais inválidas" });
       }
 
       // Gerar token de autenticação
@@ -39,7 +41,7 @@ export async function loginUser(app: FastifyInstance) {
       });
 
       // Configurar cookie com o token JWT
-      reply.setCookie("token", token, {
+      res.cookie("token", token, {
         path: "/",
         httpOnly: false,
         sameSite: "strict",
@@ -48,9 +50,11 @@ export async function loginUser(app: FastifyInstance) {
       });
 
       // Se o usuário for assinante, você pode adicionar aqui a lógica para acessar a lista de filmes
-      return reply.status(200).send({ token, userId: user.id });
+      return res.status(200).send({ token, userId: user.id });
     } catch (error: any) {
-      return reply.status(400).send({ error: error.message });
+      return res.status(400).send({ error: error.message });
     }
   });
 }
+
+export default app;

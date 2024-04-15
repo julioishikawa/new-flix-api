@@ -1,9 +1,11 @@
-import { FastifyInstance, FastifyRequest } from "fastify";
+import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import bcrypt from "bcrypt";
 import { DiskStorage } from "../../providers/diskStorage";
 import { ensureAuthenticated } from "../../middlewares/ensureAuthenticated";
+
+const app = Router();
 
 interface UpdateUserRequest {
   name: string;
@@ -14,11 +16,11 @@ interface UpdateUserRequest {
   confirmPassword: string;
 }
 
-export async function updateUser(app: FastifyInstance) {
+export async function updateUser() {
   app.put(
     "/users/:userId",
-    { preHandler: ensureAuthenticated },
-    async (req: FastifyRequest, reply) => {
+    ensureAuthenticated,
+    async (req: Request, res: Response) => {
       const updateUserParams = z.object({
         userId: z.string().uuid(),
       });
@@ -55,7 +57,7 @@ export async function updateUser(app: FastifyInstance) {
         );
 
         if (unexpectedProperties.length > 0) {
-          return reply.status(400).send({
+          return res.status(400).send({
             error:
               "Propriedades adicionais na atualização de usuário que não são permitidas",
             unexpectedProperties,
@@ -67,11 +69,11 @@ export async function updateUser(app: FastifyInstance) {
         });
 
         if (!existingUser) {
-          return reply.status(404).send({ error: "Usuário não encontrado" });
+          return res.status(404).send({ error: "Usuário não encontrado" });
         }
 
         if (password !== confirmPassword) {
-          return reply.status(400).send({
+          return res.status(400).send({
             error: "As senhas não correspondem",
           });
         }
@@ -81,7 +83,7 @@ export async function updateUser(app: FastifyInstance) {
         });
 
         if (existingEmail && existingEmail.id !== userId) {
-          return reply.status(400).send({
+          return res.status(400).send({
             error: "O e-mail fornecido já está em uso",
           });
         }
@@ -92,7 +94,7 @@ export async function updateUser(app: FastifyInstance) {
         );
 
         if (!oldPasswordMatch) {
-          return reply.status(401).send({ error: "Senha antiga incorreta" });
+          return res.status(401).send({ error: "Senha antiga incorreta" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -122,11 +124,13 @@ export async function updateUser(app: FastifyInstance) {
           },
         });
 
-        return reply.status(200).send(updatedUser);
+        return res.status(200).send(updatedUser);
       } catch (error: any) {
         console.error("Erro ao atualizar o usuário:", error);
-        return reply.status(500).send({ error: "Erro interno do servidor" });
+        return res.status(500).send({ error: "Erro interno do servidor" });
       }
     }
   );
 }
+
+export default app;

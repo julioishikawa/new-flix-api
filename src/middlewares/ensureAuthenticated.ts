@@ -1,43 +1,37 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { jwtConfig } from "../configs/auth";
 
-interface AuthenticatedUser {
-  userId: string;
-  isAdmin: boolean;
-}
-
-// Estende a interface FastifyRequest para incluir a propriedade 'user'
-declare module "fastify" {
-  interface FastifyRequest {
-    user?: AuthenticatedUser;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any; // Adjust the type according to your user object structure
+    }
   }
 }
 
+// Middleware para garantir que o usuário esteja autenticado
 export async function ensureAuthenticated(
-  req: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const tokenCookie = req.cookies && req.cookies.token;
 
   if (!tokenCookie) {
-    reply.status(401).send({ error: "JWT Token não informado" });
-    return;
+    return res.status(401).send({ error: "JWT Token não informado" });
   }
 
   try {
-    const decoded = jwt.verify(
-      tokenCookie,
-      jwtConfig.secret
-    ) as AuthenticatedUser;
+    // Verifica e decodifica o token
+    const decoded = jwt.verify(tokenCookie, jwtConfig.secret);
 
     // Define os dados do usuário autenticado diretamente na requisição para uso posterior
     req.user = decoded;
 
-    // Se o token for válido, segue para a próxima rota
-    return;
+    // Se o token for válido, passa para o próximo middleware
+    next();
   } catch (error) {
-    reply.status(401).send({ error: "JWT Token inválido" });
-    return;
+    return res.status(401).send({ error: "JWT Token inválido" });
   }
 }

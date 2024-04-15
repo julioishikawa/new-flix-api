@@ -1,4 +1,3 @@
-import { FastifyRequest, FastifyReply } from "fastify";
 import jwt from "jsonwebtoken";
 import { jwtConfig } from "../configs/auth";
 import { redis } from "../lib/redis";
@@ -10,14 +9,11 @@ interface AuthenticatedUser {
   hasSubscription: boolean;
 }
 
-export async function ensureSubscriber(
-  req: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export async function ensureSubscriber(req: any, res: any, next: any) {
   const tokenCookie = req.cookies && req.cookies.token;
 
   if (!tokenCookie) {
-    reply.status(401).send({ error: "JWT Token não informado" });
+    res.status(401).send({ error: "JWT Token não informado" });
     return;
   }
 
@@ -39,15 +35,15 @@ export async function ensureSubscriber(
 
       // Se o usuário não for assinante, retorna uma mensagem
       if (!decoded.hasSubscription) {
-        reply.status(401).send({ error: "Você não é um assinante" });
+        res.status(401).send({ error: "Você não é um assinante" });
         return;
       }
     }
 
     // Se o token for válido, segue para a próxima rota
-    return;
+    next();
   } catch (error) {
-    reply.status(401).send({ error: "JWT Token inválido" });
+    res.status(401).send({ error: "JWT Token inválido" });
     return;
   }
 }

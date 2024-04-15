@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon src/server.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc ./scripts/subscriptions.ts",
     "create": "node ./scripts/subscriptions.js",
@@ -14,7 +15,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
-    "@types/fastify-cors": "^2.1.0",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/ms": "^0.7.34",
     "@types/node": "^20.11.30",
@@ -29,13 +31,15 @@
     "@prisma/client": "^5.11.0",
     "@types/multer": "^1.4.11",
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "fastify": "^4.26.2",
-    "fastify-cors": "^2.0.0",
-    "fastify-multer": "^2.0.3",
+    "express": "^4.19.2",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
     "ms": "^2.1.3",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.1.0",
     "zod": "^3.22.4"
   }
 }

@@ -1,5 +1,3 @@
-// create-update-subscriptions.ts
-
 import { PrismaClient, SubscriptionType } from "@prisma/client";
 
 const prisma = new PrismaClient();

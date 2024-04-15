@@ -1,19 +1,19 @@
-import fs from "fs";
-import path from "path";
-import { TMP_FOLDER, UPLOADS_FOLDER } from "../configs/upload";
+const fs = require("fs");
+const path = require("path");
+const uploadConfig = require("../configs/upload");
 
-class DiskStorage {
-  async saveFile(file: string) {
+export class DiskStorage {
+  async saveFile(file: any) {
     await fs.promises.rename(
-      path.resolve(TMP_FOLDER, file),
-      path.resolve(UPLOADS_FOLDER, file)
+      path.resolve(uploadConfig.TMP_FOLDER, file),
+      path.resolve(uploadConfig.UPLOADS_FOLDER, file)
     );
 
     return file;
   }
 
-  async deleteFile(file: string) {
-    const filePath = path.resolve(UPLOADS_FOLDER, file);
+  async deleteFile(file: any) {
+    const filePath = path.resolve(uploadConfig.UPLOADS_FOLDER, file);
 
     try {
       await fs.promises.stat(filePath);
@@ -24,8 +24,8 @@ class DiskStorage {
     await fs.promises.unlink(filePath);
   }
 
-  async verifyFile(file: string) {
-    const filePath = path.resolve(TMP_FOLDER, file);
+  async verifyFile(file: any) {
+    const filePath = path.resolve(uploadConfig.TMP_FOLDER, file);
 
     try {
       await fs.promises.stat(filePath);
@@ -37,4 +37,4 @@ class DiskStorage {
   }
 }
 
-export default DiskStorage;
+module.exports = DiskStorage;

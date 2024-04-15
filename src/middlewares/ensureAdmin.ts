@@ -1,45 +1,49 @@
-import { FastifyRequest, FastifyReply } from "fastify";
-import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { jwtConfig } from "../configs/auth";
 
-interface AuthenticatedUser {
+// Interface para definir o formato do usuário autenticado
+interface AuthenticatedUser extends JwtPayload {
   userId: string;
   isAdmin: boolean;
 }
 
+// Middleware para garantir que o usuário seja administrador
 export async function ensureAdmin(
-  request: FastifyRequest,
-  reply: FastifyReply
+  req: Request,
+  res: Response,
+  next: NextFunction
 ): Promise<void> {
-  const tokenCookie = request.cookies && request.cookies.token;
+  const tokenCookie = req.cookies && req.cookies.token;
 
   if (!tokenCookie) {
-    reply.status(401).send({ error: "JWT Token não informado" });
+    res.status(401).send({ error: "JWT Token não informado" });
     return;
   }
 
   try {
+    // Verifica e decodifica o token
     const decoded = jwt.verify(
       tokenCookie,
       jwtConfig.secret
     ) as AuthenticatedUser;
 
     // Define os dados do usuário autenticado diretamente na requisição para uso posterior
-    request.user = decoded;
+    req.user = decoded;
 
     // Verifica se o usuário é autenticado e administrador
     if (!decoded.isAdmin) {
-      reply.status(401).send({
+      res.status(401).send({
         error:
           "Acesso não autorizado. Apenas administradores podem acessar esta rota",
       });
       return;
     }
 
-    // Se o token for válido e o usuário for administrador, segue para a próxima rota
-    return;
+    // Se o token for válido e o usuário for administrador, passa para o próximo middleware
+    next();
   } catch (error) {
-    reply.status(401).send({ error: "JWT Token inválido" });
+    res.status(401).send({ error: "JWT Token inválido" });
     return;
   }
 }
