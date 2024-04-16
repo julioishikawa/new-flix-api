@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
-import { prisma } from "../../lib/prisma";
-import { ensureAuthenticated } from "../../middlewares/ensureAuthenticated";
-import { redis } from "../../lib/redis";
+import { prisma } from "../lib/prisma";
+import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
+import { redis } from "../lib/redis";
 
 const app = Router();
 

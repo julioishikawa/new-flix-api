@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
 import { z } from "zod";
-import { ensureAdmin } from "../../middlewares/ensureAdmin";
-import { DiskStorage } from "../../providers/diskStorage";
-import { prisma } from "../../lib/prisma";
+import { ensureAdmin } from "../middlewares/ensureAdmin";
+import { DiskStorage } from "../providers/diskStorage";
+import { prisma } from "../lib/prisma";
 
 const uploadConfig = require("../configs/upload");
 

@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { z } from "zod";
-import { movieRatingPubSub } from "../../utils/rating-pub-sub";
-import { ensureSubscriber } from "../../middlewares/ensureSubscriber";
+import { movieRatingPubSub } from "../utils/rating-pub-sub";
+import { ensureSubscriber } from "../middlewares/ensureSubscriber";
 
 // Definição manual do tipo Rating
 interface Rating {

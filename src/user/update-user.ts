@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
 import { z } from "zod";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 import bcrypt from "bcrypt";
-import { DiskStorage } from "../../providers/diskStorage";
-import { ensureAuthenticated } from "../../middlewares/ensureAuthenticated";
+import { DiskStorage } from "../providers/diskStorage";
+import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 
 const app = Router();
 

@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import multer, { StorageEngine } from "multer";
-import { DiskStorage } from "../../providers/diskStorage";
-import { ensureAdmin } from "../../middlewares/ensureAdmin";
+import { DiskStorage } from "../providers/diskStorage";
+import { ensureAdmin } from "../middlewares/ensureAdmin";
 
 const uploadConfig = require("../../configs/upload");
 

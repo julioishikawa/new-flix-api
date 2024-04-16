@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
-import { prisma } from "../../lib/prisma";
-import { ensureSubscriber } from "../../middlewares/ensureSubscriber";
+import { prisma } from "../lib/prisma";
+import { ensureSubscriber } from "../middlewares/ensureSubscriber";
 
 const app = Router();
 

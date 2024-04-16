@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { z } from "zod";
-import { DiskStorage } from "../../providers/diskStorage";
-import { ensureAdmin } from "../../middlewares/ensureAdmin";
+import { DiskStorage } from "../providers/diskStorage";
+import { ensureAdmin } from "../middlewares/ensureAdmin";
 
 interface UpdateMovieRequest {
   title?: string;

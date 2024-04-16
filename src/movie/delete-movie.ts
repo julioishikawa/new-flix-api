@@ -1,7 +1,7 @@
 import z from "zod";
 import { Router } from "express";
-import { prisma } from "../../lib/prisma";
-import { ensureAdmin } from "../../middlewares/ensureAdmin";
+import { prisma } from "../lib/prisma";
+import { ensureAdmin } from "../middlewares/ensureAdmin";
 
 const app = Router();
 

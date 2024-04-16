@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { UPLOADS_FOLDER } from "../../configs/upload";
+import { UPLOADS_FOLDER } from "../configs/upload";
 import path from "path";
 import fs from "fs";
 
