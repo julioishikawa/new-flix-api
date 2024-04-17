@@ -1,19 +1,22 @@
-const fs = require("fs");
-const path = require("path");
-const uploadConfig = require("../configs/upload");
+import fs from "fs";
+import path from "path";
+import { configureMulter } from "../configs/upload";
+
+// Obtenha a configuração do multer usando a função configureMulter
+const { TMP_FOLDER, UPLOADS_FOLDER } = configureMulter();
 
 export class DiskStorage {
   async saveFile(file: any) {
     await fs.promises.rename(
-      path.resolve(uploadConfig.TMP_FOLDER, file),
-      path.resolve(uploadConfig.UPLOADS_FOLDER, file)
+      path.resolve(TMP_FOLDER, file),
+      path.resolve(UPLOADS_FOLDER, file)
     );
 
     return file;
   }
 
   async deleteFile(file: any) {
-    const filePath = path.resolve(uploadConfig.UPLOADS_FOLDER, file);
+    const filePath = path.resolve(UPLOADS_FOLDER, file);
 
     try {
       await fs.promises.stat(filePath);
@@ -25,7 +28,7 @@ export class DiskStorage {
   }
 
   async verifyFile(file: any) {
-    const filePath = path.resolve(uploadConfig.TMP_FOLDER, file);
+    const filePath = path.resolve(TMP_FOLDER, file);
 
     try {
       await fs.promises.stat(filePath);
@@ -36,5 +39,3 @@ export class DiskStorage {
     await fs.promises.unlink(filePath);
   }
 }
-
-module.exports = DiskStorage;

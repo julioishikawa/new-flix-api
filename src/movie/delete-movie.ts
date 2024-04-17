@@ -1,16 +1,9 @@
-import z from "zod";
-import { Router } from "express";
+import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { ensureAdmin } from "../middlewares/ensureAdmin";
+import { DiskStorage } from "../providers/diskStorage";
 
-const app = Router();
-
-app.delete("/movielist/:movieId", ensureAdmin, async (req, res) => {
-  const getMovieParams = z.object({
-    movieId: z.string().uuid(),
-  });
-
-  const { movieId } = getMovieParams.parse(req.params);
+export async function deleteMovie(req: Request, res: Response) {
+  const { movieId } = req.params;
 
   try {
     const existingMovie = await prisma.movie.findUnique({
@@ -22,10 +15,23 @@ app.delete("/movielist/:movieId", ensureAdmin, async (req, res) => {
       return res.status(404).send({ error: "Filme não encontrado" });
     }
 
-    await prisma.movieContent.deleteMany({
-      where: { movieId: movieId },
+    // Verificar se existe uma imagem associada ao filme
+    if (existingMovie.image) {
+      const diskStorage = new DiskStorage();
+      await diskStorage.deleteFile(existingMovie.image);
+    }
+
+    // Excluir todos os ratings associados ao filme
+    await prisma.rating.deleteMany({
+      where: { movieId },
     });
 
+    // Excluir o conteúdo do filme
+    await prisma.movieContent.deleteMany({
+      where: { movieId },
+    });
+
+    // Excluir o filme
     await prisma.movie.delete({
       where: { id: movieId },
     });
@@ -35,6 +41,4 @@ app.delete("/movielist/:movieId", ensureAdmin, async (req, res) => {
     console.error("Erro ao excluir filme:", error);
     return res.status(500).send({ error: "Erro interno do servidor" });
   }
-});
-
-export default app;
+}
