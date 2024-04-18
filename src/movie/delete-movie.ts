@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { DiskStorage } from "../providers/diskStorage";
+import { DiskMoviesStorage } from "../providers/disk-movies-storage";
 
 export async function deleteMovie(req: Request, res: Response) {
   const { movieId } = req.params;
@@ -17,7 +17,7 @@ export async function deleteMovie(req: Request, res: Response) {
 
     // Verificar se existe uma imagem associada ao filme
     if (existingMovie.image) {
-      const diskStorage = new DiskStorage();
+      const diskStorage = new DiskMoviesStorage();
       await diskStorage.deleteFile(existingMovie.image);
     }
 

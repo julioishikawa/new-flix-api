@@ -3,7 +3,8 @@ import multer from "multer";
 import crypto from "crypto";
 
 const TMP_FOLDER = path.resolve(__dirname, "..", "..", "tmp");
-const UPLOADS_FOLDER = path.resolve(TMP_FOLDER, "uploads");
+const UPLOADS_USERS_FOLDER = path.resolve(TMP_FOLDER, "uploads_users");
+const UPLOADS_MOVIES_FOLDER = path.resolve(TMP_FOLDER, "uploads_movies");
 
 function configureMulter() {
   const storage = multer.diskStorage({
@@ -18,8 +19,14 @@ function configureMulter() {
   return {
     storage,
     TMP_FOLDER,
-    UPLOADS_FOLDER,
+    UPLOADS_USERS_FOLDER,
+    UPLOADS_MOVIES_FOLDER,
   };
 }
 
-export { configureMulter, TMP_FOLDER, UPLOADS_FOLDER };
+export {
+  configureMulter,
+  TMP_FOLDER,
+  UPLOADS_USERS_FOLDER,
+  UPLOADS_MOVIES_FOLDER,
+};

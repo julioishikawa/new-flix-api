@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { DiskStorage } from "../providers/diskStorage";
+import { DiskMoviesStorage } from "../providers/disk-movies-storage";
 import { prisma } from "../lib/prisma";
 
 interface Movie {
@@ -9,7 +9,6 @@ interface Movie {
 
 export async function uploadImageMovie(request: Request, response: Response) {
   try {
-    // Verifica se o arquivo foi enviado
     const file = (request as any).file;
     if (!file) {
       return response.status(400).send({ message: "Nenhuma imagem enviada" });
@@ -18,12 +17,24 @@ export async function uploadImageMovie(request: Request, response: Response) {
     const movieId = request.params.movieId;
     const imageFileName = file.filename;
 
-    const diskStorage = new DiskStorage();
+    const diskStorage = new DiskMoviesStorage();
 
-    // Salva o arquivo de imagem
+    const existingMovie = await prisma.movie.findUnique({
+      where: { id: movieId },
+    });
+
+    if (!existingMovie) {
+      // Verifica se o arquivo é válido antes de salvar
+      await diskStorage.verifyFile(imageFileName);
+      return response.status(404).send({ message: "Filme não encontrado" });
+    }
+
+    if (existingMovie.image) {
+      await diskStorage.deleteFile(existingMovie.image);
+    }
+
     const fileName = await diskStorage.saveFile(imageFileName);
 
-    // Atualiza o filme no banco de dados com a nova imagem
     const updatedMovie: Movie = await prisma.movie.update({
       where: { id: movieId },
       data: { image: fileName },

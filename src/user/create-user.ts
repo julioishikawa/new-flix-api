@@ -1,9 +1,7 @@
-import { Router } from "express";
+import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcrypt";
-
-const app = Router();
 
 interface NewUserRequest {
   name: string;
@@ -13,35 +11,19 @@ interface NewUserRequest {
   isAdmin: boolean;
 }
 
-const createUserBody = z
-  .object({
+export async function createUser(req: Request, res: Response) {
+  const createUserBody = z.object({
     name: z.string(),
     email: z.string(),
     password: z.string(),
     confirmPassword: z.string(),
-  })
-  .passthrough();
+  });
 
-app.post("/newuser", async (req, res) => {
   try {
     const requestBody = req.body as NewUserRequest;
 
-    const { name, email, password, confirmPassword } = createUserBody.parse(
-      req.body
-    );
-
-    const allowedProperties = ["name", "email", "password", "confirmPassword"];
-    const unexpectedProperties = Object.keys(requestBody).filter(
-      (key) => !allowedProperties.includes(key)
-    );
-
-    if (unexpectedProperties.length > 0) {
-      return res.status(400).json({
-        error:
-          "Propriedades adicionais na criação de usuário que não são permitidas",
-        unexpectedProperties,
-      });
-    }
+    const { name, email, password, confirmPassword } =
+      createUserBody.parse(requestBody);
 
     if (password !== confirmPassword) {
       return res.status(400).json({
@@ -76,6 +58,4 @@ app.post("/newuser", async (req, res) => {
   } catch (error: any) {
     return res.status(400).json({ error: error.message });
   }
-});
-
-export default app;
+}
