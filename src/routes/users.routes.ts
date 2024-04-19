@@ -12,9 +12,14 @@ import { getAvatarUser } from "../user/get-avatar-user";
 const usersRoutes = Router();
 const upload = multer(configureMulter());
 
-usersRoutes.post("/newuser", ensureAuthenticated, createUser);
-usersRoutes.patch("/upload/:userId", upload.single("avatar"), uploadAvatarUser);
-usersRoutes.get("/:userId/avatar", getAvatarUser);
+usersRoutes.post("/newuser", createUser);
+usersRoutes.patch(
+  "/upload/:userId",
+  upload.single("avatar"),
+  ensureAuthenticated,
+  uploadAvatarUser
+);
+usersRoutes.get("/:userId/avatar", ensureAuthenticated, getAvatarUser);
 usersRoutes.put("/:userId", ensureAuthenticated, updateUser);
 
 export { usersRoutes };
