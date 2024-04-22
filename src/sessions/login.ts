@@ -31,10 +31,14 @@ export async function loginUser(req: Request, res: Response) {
       return res.status(401).send({ error: "Credenciais inválidas" });
     }
 
+    // Determine se o usuário tem uma assinatura com base em subscriptionId
+    const hasSubscription = !!user.subscriptionId;
+
     // Gerar token de autenticação
     const token = generateAuthToken({
       userId: user.id,
       isAdmin: user.isAdmin,
+      hasSubscription: hasSubscription,
     });
 
     // Configurar cookie com o token JWT
