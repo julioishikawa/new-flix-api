@@ -19,7 +19,6 @@ const moviesRoutes = Router();
 const upload = multer(configureMulter());
 
 moviesRoutes.use(ensureAuthenticated);
-moviesRoutes.use(ensureSubscriber);
 
 moviesRoutes.post("/newmovie", ensureAdmin, newMovie);
 moviesRoutes.patch(
@@ -28,11 +27,11 @@ moviesRoutes.patch(
   ensureAdmin,
   uploadImageMovie
 );
-moviesRoutes.post("/:movieId/rating", ratingMovie);
-moviesRoutes.get("/", getMovies);
-moviesRoutes.get("/:movieId", getMovie);
-moviesRoutes.get("/:movieId/image", getImageMovie);
-moviesRoutes.put("/editmovie/:movieId", updateMovie);
+moviesRoutes.put("/editmovie/:movieId", ensureAdmin, updateMovie);
 moviesRoutes.delete("/:movieId", ensureAdmin, deleteMovie);
+moviesRoutes.post("/:movieId/rating", ensureSubscriber, ratingMovie);
+moviesRoutes.get("/", ensureSubscriber, getMovies);
+moviesRoutes.get("/:movieId", ensureSubscriber, getMovie);
+moviesRoutes.get("/:movieId/image", ensureSubscriber, getImageMovie);
 
 export { moviesRoutes };

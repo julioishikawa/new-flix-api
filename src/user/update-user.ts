@@ -2,11 +2,9 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcrypt";
-import { DiskUsersStorage } from "../providers/disk-users-storage";
 
 interface UpdateUserRequest {
   name: string;
-  avatar?: string;
   email: string;
   oldPassword: string;
   password: string;
@@ -18,20 +16,25 @@ export async function updateUser(req: Request, res: Response) {
     userId: z.string().uuid(),
   });
 
-  const { userId } = updateUserParams.parse(req.params);
-
   const updateUserBody = z.object({
     name: z.string(),
-    avatar: z.string().nullable(),
     email: z.string().email(),
     oldPassword: z.string(),
     password: z.string(),
     confirmPassword: z.string(),
   });
 
+  let userId: string;
+
+  try {
+    ({ userId } = updateUserParams.parse(req.params));
+  } catch (error) {
+    return res.status(400).send({ error: "Usuário não encontrado!" });
+  }
+
   try {
     const requestBody = req.body as UpdateUserRequest;
-    const { name, avatar, email, oldPassword, password, confirmPassword } =
+    const { name, email, oldPassword, password, confirmPassword } =
       updateUserBody.parse(requestBody);
 
     const existingUser = await prisma.user.findUnique({
@@ -69,25 +72,10 @@ export async function updateUser(req: Request, res: Response) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Se um novo avatar for fornecido, salve-o e exclua o avatar anterior
-    if (avatar) {
-      const diskStorage = new DiskUsersStorage();
-      const savedAvatar = await diskStorage.saveFile(avatar);
-
-      // Exclua o avatar anterior, se existir
-      if (existingUser.avatar) {
-        await diskStorage.deleteFile(existingUser.avatar);
-      }
-
-      // Atualize o nome do avatar no objeto de usuário existente
-      existingUser.avatar = savedAvatar;
-    }
-
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         name,
-        avatar: avatar || existingUser.avatar, // Use o novo avatar ou o anterior
         email,
         password: hashedPassword,
         updated_at: new Date(),
@@ -97,6 +85,6 @@ export async function updateUser(req: Request, res: Response) {
     return res.status(200).send(updatedUser);
   } catch (error: any) {
     console.error("Erro ao atualizar o usuário:", error);
-    return res.status(500).send({ error: "Erro interno do servidor" });
+    return res.status(400).send({ error: error.message });
   }
 }

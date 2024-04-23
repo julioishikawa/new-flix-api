@@ -42,7 +42,7 @@ export async function getMovie(req: Request, res: Response) {
       movie: {
         id: movie.id,
         title: movie.title,
-        gender: movie.gender,
+        genres: movie.genres,
         date: movie.created_at.toISOString(),
         content: {
           id: content.id,

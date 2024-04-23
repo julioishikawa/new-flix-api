@@ -45,9 +45,12 @@ export async function createUser(req: Request, res: Response) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const avatar = "default.jpg";
+
     const user = await prisma.user.create({
       data: {
         name,
+        avatar,
         email,
         password: hashedPassword,
         isAdmin: false,
