@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
+import { getMovieRating } from "../utils/get-movie-rating";
 
 export async function getMovies(req: Request, res: Response) {
   try {
-    const { searchText } = req.query; // Obtém o parâmetro de consulta searchText
+    const { searchText } = req.query;
 
     let movies;
     if (searchText) {
@@ -23,9 +24,18 @@ export async function getMovies(req: Request, res: Response) {
       // Se searchText não estiver presente, retorna todos os filmes
       movies = await prisma.movie.findMany({
         include: {
-          content: true,
+          demo_content: true,
         },
       });
+
+      // Para cada filme, calcule a porcentagem do rating e adicione ao objeto do filme
+      for (const movie of movies) {
+        // Obtenha a porcentagem do rating para o filme atual
+        const ratingPercentage = await getMovieRating(movie.id);
+
+        // Adicione a porcentagem do rating ao objeto do filme
+        (movie as any).rating = ratingPercentage;
+      }
     }
 
     res.send(movies);

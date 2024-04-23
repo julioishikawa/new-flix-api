@@ -25,6 +25,10 @@ export async function createUser(req: Request, res: Response) {
     const { name, email, password, confirmPassword } =
       createUserBody.parse(requestBody);
 
+    if (!name || !email || !password || !confirmPassword) {
+      throw new Error("Todos os campos devem ser preenchidos.");
+    }
+
     if (password !== confirmPassword) {
       return res.status(400).json({
         error: "As senhas não correspondem",

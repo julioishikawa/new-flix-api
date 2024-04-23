@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Movie {
-  id          String        @id @default(uuid())
-  title       String
-  image       String
-  genres      String[]
-  description String
-  created_at  DateTime      @default(now())
-  updated_at  DateTime      @default(now())
-  content     MovieContent?
-  rating      Rating[]
+  id           String            @id @default(uuid())
+  title        String
+  image        String
+  genres       String[]
+  description  String
+  created_at   DateTime          @default(now())
+  updated_at   DateTime          @default(now())
+  demo_content MovieDemoContent?
+  content      MovieContent?
+  rating       Rating[]
 
   @@unique([id]) // Garante que cada Movie tenha apenas um MovieContent
 }
@@ -29,6 +30,16 @@ model MovieContent {
   movieId String @unique
 
   @@index([movieId]) // Garante que cada MovieContent esteja associado a apenas um Movie
+}
+
+model MovieDemoContent {
+  id          String @id @default(uuid())
+  trailer_URL String
+  movie       Movie  @relation(fields: [movieId], references: [id])
+
+  movieId String @unique
+
+  @@index([movieId])
 }
 
 model Rating {

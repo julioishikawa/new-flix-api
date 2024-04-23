@@ -31,6 +31,11 @@ export async function deleteMovie(req: Request, res: Response) {
       where: { movieId },
     });
 
+    // Excluir o conteúdo do filme
+    await prisma.movieDemoContent.deleteMany({
+      where: { movieId },
+    });
+
     // Excluir o filme
     await prisma.movie.delete({
       where: { id: movieId },

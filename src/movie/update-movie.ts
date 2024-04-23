@@ -2,6 +2,18 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { z } from "zod";
 
+interface UpdateMovieRequest {
+  title: string;
+  genres: string[];
+  description: string;
+  demo_content: {
+    trailer_URL: string;
+  };
+  content: {
+    URL: string;
+  };
+}
+
 export async function updateMovie(req: Request, res: Response) {
   const updateMovieParams = z.object({
     movieId: z.string().uuid(),
@@ -11,6 +23,9 @@ export async function updateMovie(req: Request, res: Response) {
     title: z.string(),
     genres: z.array(z.string()),
     description: z.string(),
+    demo_content: z.object({
+      trailer_URL: z.string(),
+    }),
     content: z.object({
       URL: z.string(),
     }),
@@ -34,10 +49,10 @@ export async function updateMovie(req: Request, res: Response) {
   ];
 
   try {
-    // Parse request body
-    const { title, genres, description, content } = updateMovieBody.parse(
-      req.body
-    );
+    const requestBody = req.body as UpdateMovieRequest;
+
+    const { title, genres, description, demo_content, content } =
+      updateMovieBody.parse(requestBody);
 
     // Check if movie exists
     const existingMovie = await prisma.movie.findUnique({
@@ -46,6 +61,16 @@ export async function updateMovie(req: Request, res: Response) {
 
     if (!existingMovie) {
       return res.status(404).send({ error: "Filme não encontrado" });
+    }
+
+    if (!title || !description || !demo_content.trailer_URL || !content.URL) {
+      throw new Error("Todos os campos devem ser preenchidos.");
+    }
+
+    if (!genres || genres.length === 0) {
+      throw new Error(
+        "Você precisa escolher pelo menos 1 gênero para o filme."
+      );
     }
 
     // Validate genres
@@ -61,6 +86,12 @@ export async function updateMovie(req: Request, res: Response) {
     const updatedMovie = await prisma.movie.update({
       where: { id: movieId },
       include: {
+        demo_content: {
+          select: {
+            id: true,
+            trailer_URL: true,
+          },
+        },
         content: {
           select: {
             id: true,
@@ -72,6 +103,11 @@ export async function updateMovie(req: Request, res: Response) {
         title,
         genres,
         description,
+        demo_content: {
+          update: {
+            trailer_URL: demo_content.trailer_URL,
+          },
+        },
         content: {
           update: {
             URL: content.URL,

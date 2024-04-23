@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { getMovieRating } from "../utils/get-movie-rating";
 
 export async function getMovie(req: Request, res: Response) {
   const getMovieParams = z.object({
@@ -35,9 +34,6 @@ export async function getMovie(req: Request, res: Response) {
 
     const content = movie.content;
 
-    // Calcula a porcentagem de rating do filme
-    const ratingPercentage = await getMovieRating(movieId);
-
     return res.send({
       movie: {
         id: movie.id,
@@ -48,7 +44,6 @@ export async function getMovie(req: Request, res: Response) {
           id: content.id,
           URL: content.URL,
         },
-        ratingPercentage: `${ratingPercentage}%`, // Inclui a porcentagem de rating na resposta
       },
     });
   } catch (error: any) {

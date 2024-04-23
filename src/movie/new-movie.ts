@@ -2,11 +2,26 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 
+interface NewMovieRequest {
+  title: string;
+  genres: string[];
+  description: string;
+  demo_content: {
+    trailer_URL: string;
+  };
+  content: {
+    URL: string;
+  };
+}
+
 export async function newMovie(req: Request, res: Response) {
   const createMovieBody = z.object({
     title: z.string(),
     genres: z.array(z.string()),
     description: z.string(),
+    demo_content: z.object({
+      trailer_URL: z.string(),
+    }),
     content: z.object({
       URL: z.string(),
     }),
@@ -22,10 +37,21 @@ export async function newMovie(req: Request, res: Response) {
   ];
 
   try {
-    const requestBody = req.body;
+    const requestBody = req.body as NewMovieRequest;
 
-    const { title, genres, description, content } =
+    // Verificar se todos os campos obrigatórios estão presentes
+    const { title, genres, description, demo_content, content } =
       createMovieBody.parse(requestBody);
+
+    if (!title || !description || !demo_content.trailer_URL || !content.URL) {
+      throw new Error("Todos os campos devem ser preenchidos.");
+    }
+
+    if (!genres || genres.length === 0) {
+      throw new Error(
+        "Você precisa escolher pelo menos 1 gênero para o filme."
+      );
+    }
 
     // Verificar se todos os gêneros fornecidos são válidos
     for (const genre of genres) {
@@ -42,6 +68,11 @@ export async function newMovie(req: Request, res: Response) {
         image: image,
         genres,
         description,
+        demo_content: {
+          create: {
+            trailer_URL: demo_content.trailer_URL,
+          },
+        },
         content: {
           create: {
             URL: content.URL,
