@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 interface AuthenticatedUser {
   userId: string;
   isAdmin: boolean;
-  hasSubscription: boolean; // Altere para boolean
+  hasSubscription: boolean;
 }
 
 export const jwtConfig = {

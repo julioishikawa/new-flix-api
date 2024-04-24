@@ -1,10 +1,8 @@
 import { Request, Response, Router } from "express";
 import { prisma } from "../lib/prisma";
 import { redis } from "../lib/redis";
+import { generateAuthToken } from "../configs/auth";
 
-const app = Router();
-
-// Definição da enumeração SubscriptionType
 enum SubscriptionType {
   BASIC = "BASIC",
   PREMIUM = "PREMIUM",
@@ -60,6 +58,13 @@ export async function selectSubscription(req: Request, res: Response) {
       data: { subscriptionId: subscription.id },
     });
 
+    // Gerar um novo token para o usuário
+    const newToken = generateAuthToken({
+      userId,
+      isAdmin: false,
+      hasSubscription: true,
+    });
+
     // Armazenar a subscriptionId no Redis com tempo de vida de 30 dias
     const expirationInSeconds = 60 * 60 * 24 * 30; // 30 dias
     await redis.setex(
@@ -72,6 +77,7 @@ export async function selectSubscription(req: Request, res: Response) {
     return res.status(200).send({
       userId: userId,
       subscriptionId: subscription.id,
+      token: newToken,
     });
   } catch (error) {
     console.error("Erro ao selecionar a assinatura:", error);
