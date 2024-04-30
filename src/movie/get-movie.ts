@@ -15,12 +15,8 @@ export async function getMovie(req: Request, res: Response) {
         id: movieId,
       },
       include: {
-        content: {
-          select: {
-            id: true,
-            URL: true,
-          },
-        },
+        demo_content: true,
+        content: true,
       },
     });
 
@@ -28,22 +24,34 @@ export async function getMovie(req: Request, res: Response) {
       return res.status(400).send({ message: "Filme não encontrado" });
     }
 
+    if (!movie.demo_content) {
+      return res
+        .status(404)
+        .send({ message: "Conteúdo demonstrativo não encontrado" });
+    }
+
     if (!movie.content) {
       return res.status(404).send({ message: "Conteúdo não encontrado" });
     }
 
     const content = movie.content;
+    const demo_content = movie.demo_content;
 
     return res.send({
       movie: {
         id: movie.id,
         title: movie.title,
         genres: movie.genres,
-        date: movie.created_at.toISOString(),
+        description: movie.description,
+        demo_content: {
+          id: demo_content.id,
+          trailer_URL: demo_content.trailer_URL,
+        },
         content: {
           id: content.id,
           URL: content.URL,
         },
+        date: movie.created_at.toISOString(),
       },
     });
   } catch (error: any) {
