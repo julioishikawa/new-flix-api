@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 // Interface para os dados do usuário autenticado
 interface AuthenticatedUser {
   userId: string;
+  userAvatar: string | null;
+  userName: string;
+  userEmail: string;
   isAdmin: boolean;
   hasSubscription: boolean;
 }

@@ -37,6 +37,9 @@ export async function loginUser(req: Request, res: Response) {
     // Gerar token de autenticação
     const token = generateAuthToken({
       userId: user.id,
+      userAvatar: user.avatar,
+      userName: user.name,
+      userEmail: user.email,
       isAdmin: user.isAdmin,
       hasSubscription: hasSubscription,
     });

@@ -1,4 +1,6 @@
 import Redis from "ioredis";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Obtenha a URL do Redis do ambiente
 const redisUrl = process.env.REDIS_URL;
