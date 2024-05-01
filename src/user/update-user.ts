@@ -6,9 +6,9 @@ import bcrypt from "bcrypt";
 interface UpdateUserRequest {
   name: string;
   email: string;
-  oldPassword: string;
-  password: string;
-  confirmPassword: string;
+  oldPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 }
 
 export async function updateUser(req: Request, res: Response) {
@@ -19,9 +19,9 @@ export async function updateUser(req: Request, res: Response) {
   const updateUserBody = z.object({
     name: z.string(),
     email: z.string().email(),
-    oldPassword: z.string(),
-    password: z.string(),
-    confirmPassword: z.string(),
+    oldPassword: z.string().optional(),
+    newPassword: z.string().optional(),
+    confirmPassword: z.string().optional(),
   });
 
   let userId: string;
@@ -34,7 +34,7 @@ export async function updateUser(req: Request, res: Response) {
 
   try {
     const requestBody = req.body as UpdateUserRequest;
-    const { name, email, oldPassword, password, confirmPassword } =
+    const { name, email, oldPassword, newPassword, confirmPassword } =
       updateUserBody.parse(requestBody);
 
     const existingUser = await prisma.user.findUnique({
@@ -43,12 +43,6 @@ export async function updateUser(req: Request, res: Response) {
 
     if (!existingUser) {
       return res.status(404).send({ error: "Usuário não encontrado" });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).send({
-        error: "As senhas não correspondem",
-      });
     }
 
     const existingEmail = await prisma.user.findUnique({
@@ -61,16 +55,32 @@ export async function updateUser(req: Request, res: Response) {
       });
     }
 
-    const oldPasswordMatch = await bcrypt.compare(
-      oldPassword,
-      existingUser.password
-    );
+    if (newPassword || confirmPassword) {
+      if (!oldPassword) {
+        return res.status(400).send({
+          error: "Para alterar a senha, a senha antiga deve ser fornecida",
+        });
+      }
 
-    if (!oldPasswordMatch) {
-      return res.status(401).send({ error: "Senha antiga incorreta" });
+      const oldPasswordMatch = await bcrypt.compare(
+        oldPassword,
+        existingUser.password
+      );
+
+      if (!oldPasswordMatch) {
+        return res.status(401).send({ error: "Senha antiga incorreta" });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return res.status(400).send({
+          error: "As senhas não correspondem",
+        });
+      }
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = newPassword
+      ? await bcrypt.hash(newPassword, 10)
+      : existingUser.password;
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
