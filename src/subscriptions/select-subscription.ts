@@ -8,20 +8,20 @@ enum SubscriptionType {
   PREMIUM = "PREMIUM",
 }
 
-// Função para formatar o tempo restante em dias, horas, minutos e segundos
-function formatTimeRemaining(seconds: number): string {
-  const days = Math.floor(seconds / (60 * 60 * 24));
-  const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
-  const minutes = Math.floor((seconds % (60 * 60)) / 60);
-  const remainingSeconds = seconds % 60;
-
-  const formattedTime = `${days} dias, ${hours} horas, ${minutes} minutos e ${remainingSeconds} segundos`;
-  return formattedTime;
-}
-
 export async function selectSubscription(req: Request, res: Response) {
   const { userId } = req.body as { userId: string };
   const { type } = req.params as { type: SubscriptionType };
+
+  // Função para formatar o tempo restante em dias, horas, minutos e segundos
+  function formatTimeRemaining(seconds: number): string {
+    const days = Math.floor(seconds / (60 * 60 * 24));
+    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((seconds % (60 * 60)) / 60);
+    const remainingSeconds = seconds % 60;
+
+    const formattedTime = `${days} dias, ${hours} horas, ${minutes} minutos e ${remainingSeconds} segundos`;
+    return formattedTime;
+  }
 
   // Verificar se o tipo de assinatura é válido
   try {
@@ -58,9 +58,20 @@ export async function selectSubscription(req: Request, res: Response) {
       data: { subscriptionId: subscription.id },
     });
 
+    // Buscar informações do usuário
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    // Verificar se o usuário existe
+    if (!user) {
+      return res.status(404).send({ error: "Usuário não encontrado" });
+    }
+
     // Gerar um novo token para o usuário
     const newToken = generateAuthToken({
       userId,
+      userAvatar: user.avatar,
+      userName: user.name,
+      userEmail: user.email,
       isAdmin: false,
       hasSubscription: true,
     });

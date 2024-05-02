@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcrypt";
+import { generateAuthToken } from "../configs/auth";
 
 interface UpdateUserRequest {
   name: string;
@@ -82,6 +83,17 @@ export async function updateUser(req: Request, res: Response) {
       ? await bcrypt.hash(newPassword, 10)
       : existingUser.password;
 
+    // Buscar informações do usuário
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    // Verificar se o usuário existe
+    if (!user) {
+      return res.status(404).send({ error: "Usuário não encontrado" });
+    }
+
+    // Determine se o usuário tem uma assinatura com base em subscriptionId
+    const hasSubscription = !!user.subscriptionId;
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -92,7 +104,17 @@ export async function updateUser(req: Request, res: Response) {
       },
     });
 
-    return res.status(200).send(updatedUser);
+    // Gerar um novo token para o usuário atualizado
+    const newToken = generateAuthToken({
+      userId: user.id,
+      userAvatar: updatedUser.avatar,
+      userName: updatedUser.name,
+      userEmail: updatedUser.email,
+      isAdmin: user.isAdmin,
+      hasSubscription: hasSubscription,
+    });
+
+    return res.status(200).send({ updatedUser, token: newToken });
   } catch (error: any) {
     console.error("Erro ao atualizar o usuário:", error);
     return res.status(400).send({ error: error.message });
