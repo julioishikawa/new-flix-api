@@ -9,6 +9,10 @@ import { updateUser } from "../user/update-user";
 import { uploadAvatarUser } from "../user/upload-avatar-user";
 import { getAvatarUser } from "../user/get-avatar-user";
 
+import { createUserCreditCard } from "../creditcards/create-user-cc";
+import { getUserCreditCards } from "../creditcards/get-user-ccs";
+import { deleteUserCreditCard } from "../creditcards/delete-user-cc";
+
 const usersRoutes = Router();
 const upload = multer(configureMulter());
 
@@ -21,5 +25,16 @@ usersRoutes.patch(
 );
 usersRoutes.get("/:userId/avatar", ensureAuthenticated, getAvatarUser);
 usersRoutes.put("/:userId", ensureAuthenticated, updateUser);
+usersRoutes.post("/:userId/newcc", ensureAuthenticated, createUserCreditCard);
+usersRoutes.get(
+  "/:userId/creditcards",
+  ensureAuthenticated,
+  getUserCreditCards
+);
+usersRoutes.delete(
+  "/:userId/:cardId",
+  ensureAuthenticated,
+  deleteUserCreditCard
+);
 
 export { usersRoutes };

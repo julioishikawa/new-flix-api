@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { getMovieRating } from "../utils/get-movie-rating";
+import { getMovieRating } from "../rating/get-movie-rating";
 
 export async function getMovies(req: Request, res: Response) {
   try {

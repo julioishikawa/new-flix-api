@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 // Interface para os dados do usuário autenticado
-interface AuthenticatedUser {
+export interface AuthenticatedUser {
   userId: string;
   userAvatar: string | null;
   userName: string;

@@ -67,6 +67,7 @@ model User {
   selectedSubscription Subscription? @relation(fields: [subscriptionId], references: [id]) // Campo para armazenar a assinatura selecionada pelo usuário
   Rating               Rating[]
   subscriptionId       String?
+  CreditCard           CreditCard[]
 }
 
 // Definindo a enumeração para os tipos de assinatura
@@ -84,4 +85,16 @@ model Subscription {
   benefits String[]
 
   User User[]
+}
+
+model CreditCard {
+  id         String   @id @default(uuid())
+  cardName   String
+  cardNumber String
+  expiration String
+  cvv        Int
+  createdAt  DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }

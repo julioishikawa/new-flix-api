@@ -13,7 +13,7 @@ import { getImageMovie } from "../movie/get-image-movie";
 import { getMovie } from "../movie/get-movie";
 import { deleteMovie } from "../movie/delete-movie";
 import { updateMovie } from "../movie/update-movie";
-import { ratingMovie } from "../movie/rating-movie";
+import { ratingMovie } from "../rating/rating-movie";
 
 const moviesRoutes = Router();
 const upload = multer(configureMulter());
