@@ -14,8 +14,6 @@ export async function getUserCreditCards(req: Request, res: Response) {
       },
     });
 
-    console.log(userCreditCards);
-
     // Retornar os cartões de crédito encontrados
     return res.status(200).json(userCreditCards);
   } catch (error: any) {

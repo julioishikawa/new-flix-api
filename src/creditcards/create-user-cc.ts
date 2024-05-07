@@ -47,10 +47,29 @@ export async function createUserCreditCard(req: Request, res: Response) {
       throw new Error("Número do cartão incorreto.");
     }
 
+    if (!cardName) {
+      throw new Error(
+        "Você precisa fornecer o nome que está gravado no cartão."
+      );
+    }
+
     // Verificar o formato da data de expiração (MM/YY)
     const expirationParts = expiration.split("/");
     if (expirationParts.length !== 2 || !/^\d{2}\/\d{2}$/.test(expiration)) {
       throw new Error("A data de expiração deve estar no formato MM/YY.");
+    }
+
+    const [expMonth, expYear] = expirationParts.map(Number);
+
+    // Verificar se o mês é válido (de 1 a 12)
+    if (expMonth < 1 || expMonth > 12) {
+      throw new Error("Mês de expiração inválido.");
+    }
+
+    // Verificar se o ano é válido (de 24 a 99)
+    const currentYear = new Date().getFullYear() % 100; // Pegar os dois últimos dígitos do ano atual
+    if (expYear < currentYear || expYear > 99) {
+      throw new Error("Ano de expiração inválido.");
     }
 
     // Verificar o comprimento do cvv
