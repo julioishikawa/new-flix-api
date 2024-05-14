@@ -14,6 +14,8 @@ import { getMovie } from "../movie/get-movie";
 import { deleteMovie } from "../movie/delete-movie";
 import { updateMovie } from "../movie/update-movie";
 import { ratingMovie } from "../rating/rating-movie";
+import { vipVotingMovie } from "../subscriptions/vip-vote";
+import { ensureVIP } from "../middlewares/ensureVIP";
 
 const moviesRoutes = Router();
 const upload = multer(configureMulter());
@@ -27,9 +29,10 @@ moviesRoutes.patch(
   ensureAdmin,
   uploadImageMovie
 );
-moviesRoutes.put("/editmovie/:movieId", ensureAdmin, updateMovie);
+moviesRoutes.put("/edit-movie/:movieId", ensureAdmin, updateMovie);
 moviesRoutes.delete("/:movieId", ensureAdmin, deleteMovie);
 moviesRoutes.post("/:movieId/rating", ensureSubscriber, ratingMovie);
+moviesRoutes.post("/:movieId/vip-vote", ensureVIP, vipVotingMovie);
 moviesRoutes.get("/", ensureSubscriber, getMovies);
 moviesRoutes.get("/:movieId", ensureSubscriber, getMovie);
 moviesRoutes.get("/:movieId/image", ensureSubscriber, getImageMovie);

@@ -9,15 +9,34 @@ async function subscriptions() {
   const subscriptionData = [
     {
       type: SubscriptionType.BASIC,
-      name: "Basic Subscription",
+      name: "BASIC",
       price: 19.99,
-      benefits: ["Benefit 1", "Benefit 2"],
+      benefits: [
+        "Você tem acesso a todos os filmes",
+        "Você pode classificar filmes",
+        "Com Anúncios",
+      ],
     },
     {
       type: SubscriptionType.PREMIUM,
-      name: "Premium Subscription",
+      name: "PREMIUM",
       price: 29.99,
-      benefits: ["Benefit 1", "Benefit 2", "Benefit 3"],
+      benefits: [
+        "Você tem acesso a todos os filmes",
+        "Você pode classificar filmes",
+        "Sem Anúncios",
+      ],
+    },
+    {
+      type: SubscriptionType.VIP,
+      name: "VIP",
+      price: 49.99,
+      benefits: [
+        "Você tem acesso a todos os filmes",
+        "Sem Anúncios",
+        "Você pode classificar filmes",
+        "Pode participar do voto VIP (Terá influcência no TOP 10)",
+      ],
     },
   ];
 

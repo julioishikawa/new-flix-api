@@ -18,6 +18,7 @@ model Movie {
   demo_content MovieDemoContent?
   content      MovieContent?
   rating       Rating[]
+  vipVotes     VIPVote[]
 
   @@unique([id]) // Garante que cada Movie tenha apenas um MovieContent
 }
@@ -55,6 +56,19 @@ model Rating {
   @@unique([userId, movieId])
 }
 
+model VIPVote {
+  id         String   @id @default(uuid())
+  userId     String
+  movieId    String
+  value      Int
+  created_at DateTime @default(now())
+
+  movie Movie @relation(fields: [movieId], references: [id])
+  user  User? @relation(fields: [userId], references: [id])
+
+  @@unique([userId, movieId])
+}
+
 model User {
   id                   String        @id @default(uuid())
   avatar               String?
@@ -66,6 +80,7 @@ model User {
   updated_at           DateTime      @default(now())
   selectedSubscription Subscription? @relation(fields: [subscriptionId], references: [id]) // Campo para armazenar a assinatura selecionada pelo usuário
   Rating               Rating[]
+  VIPVote              VIPVote[]
   subscriptionId       String?
   CreditCard           CreditCard[]
 }
@@ -74,6 +89,7 @@ model User {
 enum SubscriptionType {
   BASIC
   PREMIUM
+  VIP
 }
 
 // Definindo o modelo de dados para as assinaturas

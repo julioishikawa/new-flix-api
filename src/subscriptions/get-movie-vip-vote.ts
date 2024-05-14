@@ -1,24 +1,24 @@
 import { prisma } from "../lib/prisma";
 
-export async function getMovieRatings(movieId: string): Promise<number> {
-  const ratings = await prisma.rating.findMany({
+export async function getMovieVipVotes(movieId: string): Promise<number> {
+  const values = await prisma.vIPVote.findMany({
     where: {
       movieId,
     },
     select: {
-      rating: true,
+      value: true,
     },
   });
 
-  if (ratings.length === 0) {
+  if (values.length === 0) {
     return 0; // Retorna 0 se não houver classificações
   }
 
-  const sum = ratings.reduce(
-    (acc: number, curr: { rating: number }) => acc + curr.rating,
+  const sum = values.reduce(
+    (acc: number, curr: { value: number }) => acc + curr.value,
     0
   );
-  const average = sum / ratings.length;
+  const average = sum / values.length;
   const percentage = (average / 100) * 100; // Multiplica por 100 para obter a porcentagem
 
   // Arredonda para o número inteiro mais próximo

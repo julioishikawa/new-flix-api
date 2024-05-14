@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { getMovieRating } from "../rating/get-movie-rating";
+import { getMovieRatings } from "../rating/get-movie-rating";
+import { getMovieVipVotes } from "../subscriptions/get-movie-vip-vote";
 
 export async function getMovies(req: Request, res: Response) {
   try {
@@ -31,10 +32,16 @@ export async function getMovies(req: Request, res: Response) {
       // Para cada filme, calcule a porcentagem do rating e adicione ao objeto do filme
       for (const movie of movies) {
         // Obtenha a porcentagem do rating para o filme atual
-        const ratingPercentage = await getMovieRating(movie.id);
+        const ratingPercentage = await getMovieRatings(movie.id);
 
         // Adicione a porcentagem do rating ao objeto do filme
         (movie as any).rating = ratingPercentage;
+
+        // Obtenha a porcentagem dos votos VIP para o filme atual
+        const vipVotesPercentage = await getMovieVipVotes(movie.id);
+
+        // Adicione a porcentagem dos votos VIP ao objeto do filme
+        (movie as any).vipVotes = vipVotesPercentage;
       }
     }
 

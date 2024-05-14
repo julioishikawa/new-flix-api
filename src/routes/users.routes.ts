@@ -25,9 +25,9 @@ usersRoutes.patch(
 );
 usersRoutes.get("/:userId/avatar", ensureAuthenticated, getAvatarUser);
 usersRoutes.put("/:userId", ensureAuthenticated, updateUser);
-usersRoutes.post("/:userId/newcc", ensureAuthenticated, createUserCreditCard);
+usersRoutes.post("/:userId/new-cc", ensureAuthenticated, createUserCreditCard);
 usersRoutes.get(
-  "/:userId/creditcards",
+  "/:userId/credit-cards",
   ensureAuthenticated,
   getUserCreditCards
 );
