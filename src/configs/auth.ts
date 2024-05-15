@@ -8,6 +8,7 @@ export interface AuthenticatedUser {
   userEmail: string;
   isAdmin: boolean;
   hasSubscription: boolean;
+  isVIP: boolean;
 }
 
 export const jwtConfig = {

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcrypt";
 import { generateAuthToken } from "../configs/auth";
+import { redis } from "../lib/redis";
 
 interface UpdateUserRequest {
   name: string;
@@ -94,6 +95,11 @@ export async function updateUser(req: Request, res: Response) {
     // Determine se o usuário tem uma assinatura com base em subscriptionId
     const hasSubscription = !!user.subscriptionId;
 
+    // Verificar se o usuário é VIP
+    const isVIP =
+      (await redis.get(`user:subscription:${user.id}`)) ===
+      "ed964087-db2b-4e22-b2dc-e4b4a2a2554f";
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -112,6 +118,7 @@ export async function updateUser(req: Request, res: Response) {
       userEmail: updatedUser.email,
       isAdmin: user.isAdmin,
       hasSubscription: hasSubscription,
+      isVIP: isVIP,
     });
 
     return res.status(200).send({ updatedUser, token: newToken });

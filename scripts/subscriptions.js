@@ -51,13 +51,21 @@ function subscriptions() {
                             type: client_1.SubscriptionType.BASIC,
                             name: "BASIC",
                             price: 19.99,
-                            benefits: ["Você tem acesso a todos os filmes", "Com Anúncios"],
+                            benefits: [
+                                "Você tem acesso a todos os filmes",
+                                "Você pode classificar filmes",
+                                "Com Anúncios",
+                            ],
                         },
                         {
                             type: client_1.SubscriptionType.PREMIUM,
                             name: "PREMIUM",
                             price: 29.99,
-                            benefits: ["Você tem acesso a todos os filmes", "Sem Anúncios"],
+                            benefits: [
+                                "Você tem acesso a todos os filmes",
+                                "Você pode classificar filmes",
+                                "Sem Anúncios",
+                            ],
                         },
                         {
                             type: client_1.SubscriptionType.VIP,
@@ -66,7 +74,8 @@ function subscriptions() {
                             benefits: [
                                 "Você tem acesso a todos os filmes",
                                 "Sem Anúncios",
-                                "Você pode classificar filmes (Terá influcência no TOP 10)",
+                                "Você pode classificar filmes",
+                                "Pode participar do voto VIP (Terá influcência no TOP 10)",
                             ],
                         },
                     ];

@@ -35,7 +35,7 @@ async function subscriptions() {
         "Você tem acesso a todos os filmes",
         "Sem Anúncios",
         "Você pode classificar filmes",
-        "Pode participar do voto VIP (Terá influcência no TOP 10)",
+        "Pode participar do TOP 10 com o voto VIP (Terá influcência no TOP 10)",
       ],
     },
   ];

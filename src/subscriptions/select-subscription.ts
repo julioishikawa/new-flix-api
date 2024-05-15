@@ -6,6 +6,7 @@ import { generateAuthToken } from "../configs/auth";
 enum SubscriptionType {
   BASIC = "BASIC",
   PREMIUM = "PREMIUM",
+  VIP = "VIP",
 }
 
 export async function selectSubscription(req: Request, res: Response) {
@@ -66,16 +67,6 @@ export async function selectSubscription(req: Request, res: Response) {
       return res.status(404).send({ error: "Usuário não encontrado" });
     }
 
-    // Gerar um novo token para o usuário
-    const newToken = generateAuthToken({
-      userId,
-      userAvatar: user.avatar,
-      userName: user.name,
-      userEmail: user.email,
-      isAdmin: false,
-      hasSubscription: true,
-    });
-
     // Armazenar a subscriptionId no Redis com tempo de vida de 30 dias
     const expirationInSeconds = 60 * 60 * 24 * 30; // 30 dias
     await redis.setex(
@@ -84,12 +75,45 @@ export async function selectSubscription(req: Request, res: Response) {
       subscription.id
     );
 
-    // Retornar o ID do usuário e o ID da assinatura
-    return res.status(200).send({
-      userId: userId,
-      subscriptionId: subscription.id,
-      token: newToken,
-    });
+    // Verificar se o tipo de assinatura é VIP
+    const isVIP = subscription.type === SubscriptionType.VIP;
+
+    if (isVIP) {
+      const newTokenVip = generateAuthToken({
+        userId,
+        userAvatar: user.avatar,
+        userName: user.name,
+        userEmail: user.email,
+        isAdmin: false,
+        hasSubscription: true,
+        isVIP: true,
+      });
+
+      // Retornar o ID do usuário e o ID da assinatura
+      return res.status(200).send({
+        userId: userId,
+        subscriptionId: subscription.id,
+        token: newTokenVip,
+      });
+    } else {
+      // Gerar um novo token para o usuário
+      const newToken = generateAuthToken({
+        userId,
+        userAvatar: user.avatar,
+        userName: user.name,
+        userEmail: user.email,
+        isAdmin: false,
+        hasSubscription: true,
+        isVIP: false,
+      });
+
+      // Retornar o ID do usuário e o ID da assinatura
+      return res.status(200).send({
+        userId: userId,
+        subscriptionId: subscription.id,
+        token: newToken,
+      });
+    }
   } catch (error) {
     console.error("Erro ao selecionar a assinatura:", error);
     return res.status(500).send({ error: "Erro interno do servidor" });

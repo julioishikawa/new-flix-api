@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import bcrypt from "bcrypt";
 import ms from "ms";
 import { generateAuthToken, jwtConfig } from "../configs/auth";
+import { redis } from "../lib/redis";
 
 interface LoginRequest {
   email: string;
@@ -34,6 +35,11 @@ export async function loginUser(req: Request, res: Response) {
     // Determine se o usuário tem uma assinatura com base em subscriptionId
     const hasSubscription = !!user.subscriptionId;
 
+    // Verificar se o usuário é VIP
+    const isVIP =
+      (await redis.get(`user:subscription:${user.id}`)) ===
+      "ed964087-db2b-4e22-b2dc-e4b4a2a2554f"; // vai precisar de alteração caso você builde as subscriptions novamente
+
     // Gerar token de autenticação
     const token = generateAuthToken({
       userId: user.id,
@@ -42,6 +48,7 @@ export async function loginUser(req: Request, res: Response) {
       userEmail: user.email,
       isAdmin: user.isAdmin,
       hasSubscription: hasSubscription,
+      isVIP: isVIP,
     });
 
     // Configurar cookie com o token JWT
