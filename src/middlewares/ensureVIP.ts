@@ -30,7 +30,7 @@ export async function ensureVIP(req: any, res: any, next: any) {
     // Verificar se o usuário é um VIP
     if (!decoded.isAdmin) {
       const isVIP = await redis.get(`user:subscription:${decoded.userId}`);
-      decoded.isVIP = isVIP === "ed964087-db2b-4e22-b2dc-e4b4a2a2554f"; // Verifica se a assinatura é VIP
+      decoded.isVIP = isVIP === "a6b270f2-4464-432a-a7dd-7d31d6f40872"; // Verifica se a assinatura é VIP
 
       // Se o usuário não for VIP, retorna uma mensagem
       if (!decoded.isVIP) {

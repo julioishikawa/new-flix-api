@@ -38,7 +38,7 @@ export async function loginUser(req: Request, res: Response) {
     // Verificar se o usuário é VIP
     const isVIP =
       (await redis.get(`user:subscription:${user.id}`)) ===
-      "ed964087-db2b-4e22-b2dc-e4b4a2a2554f"; // vai precisar de alteração caso você builde as subscriptions novamente
+      "a6b270f2-4464-432a-a7dd-7d31d6f40872"; // vai precisar de alteração caso você builde as subscriptions novamente
 
     // Gerar token de autenticação
     const token = generateAuthToken({
