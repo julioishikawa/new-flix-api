@@ -52,4 +52,4 @@ O método de pagamento via Pix não está configurado para efetuar o pagamento p
 
 Todos os conteúdos dos filmes são conteúdos **ILUSTRATIVOS** que foram tirados do youtube de forma aleatóriamente.
 
-Feito por [shuharib0t](https://www.linkedin.com/in/julio-ishikawa-449417213/) 👋.
+Feito por [Julio Ishikawa](https://www.linkedin.com/in/julio-ishikawa-449417213/) 👋.
