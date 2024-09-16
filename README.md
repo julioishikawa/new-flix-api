@@ -4,7 +4,7 @@ A New Flix API é um servidor que foi feito para manipular dados como criação,
 
 O schema/migrations do banco de dados foi feito com a ORM Prisma, o armazenamento de todos os dados é feito pelo banco de dados PostgreSQL, apenas as assinaturas ficam guardadas no banco de dados Redis.
 
-Tudo em isso em conjunto forma uma aplicação totalmente funcional e responsiva com funcionalidades incríveis, confira [aqui](https://github.com/shuharib0t/new-flix-app).
+Tudo em isso em conjunto forma uma aplicação totalmente funcional e responsiva com funcionalidades incríveis, confira [aqui](https://github.com/julioishikawa/new-flix-app).
 
 ## Tecnologias(libs) usadas ⚡️
 
